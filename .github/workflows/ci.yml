@@ -29,7 +29,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@main
 
       # Note that we use Nix to build the Docker image and NOT the Docker CLI
-      - name: Build Docker image for horoscope service using Nix
+      - name: Build Docker image using Nix
         run: nix build ".#docker"
 
       # We need to log into the GitHub Container Registry in order to push images
