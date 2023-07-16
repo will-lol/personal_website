@@ -10,7 +10,7 @@ jobs:
   # Build the Docker image using Nix
   build:
     permissions: 
-      packages: read/write
+      packages: write
     # We need to use this machine type (x86_64-linux in Nix) or else the
     # Nix-built Docker image won't run properly
     runs-on: ubuntu-latest
