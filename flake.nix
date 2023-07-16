@@ -21,7 +21,7 @@
 	  vendorSha256 = null; 
         };
         dockerImage = pkgs.dockerTools.buildImage {
-          name = "personal_website";
+          name = "ghcr.io/personal_website";
 	  config = { 
 	    Cmd = [ "${goBuild}/bin/personal-website" ]; 
 	    Labels = {

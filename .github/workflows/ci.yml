@@ -55,10 +55,3 @@ jobs:
           echo "Pushing image ${IMAGE_TAG} to GHCR"
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
           docker push "${IMAGE_TAG}"
-
-      # Set the image name "globally" (across runners) so that the `deploy` job
-      # can use it.
-      - id: set-image
-        name: Set image name
-        run: |
-          echo "::set-output name=image::${{ env.IMAGE_TAG }}"
