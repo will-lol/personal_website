@@ -22,7 +22,12 @@
         };
         dockerImage = pkgs.dockerTools.buildImage {
           name = "personal_website";
-	  config = { Cmd = [ "${goBuild}/bin/personal-website" ]; };
+	  config = { 
+	    Cmd = [ "${goBuild}/bin/personal-website" ]; 
+	    Labels = {
+	      "org.opencontainers.image.source" = "https://github.com/will-lol/personal_website"
+	    };
+	  };
         };
       in
         {
