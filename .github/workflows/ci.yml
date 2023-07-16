@@ -1,4 +1,4 @@
-name: Build Docker image using Nix and deploy to Kubernetes
+name: Build Docker image using Nix
 
 on:
   pull_request:
