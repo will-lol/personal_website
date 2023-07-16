@@ -1,0 +1,62 @@
+name: Build Docker image using Nix and deploy to Kubernetes
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  # Build the Docker image using Nix
+  build:
+    # We need to use this machine type (x86_64-linux in Nix) or else the
+    # Nix-built Docker image won't run properly
+    runs-on: ubuntu-latest
+    environment: build
+    outputs:
+      image: ${{ steps.set-image.outputs.image }}
+    steps:
+      - name: git checkout
+        uses: actions/checkout@v3
+
+      - name: Check Nixpkgs inputs
+        uses: DeterminateSystems/flake-checker-action@v4
+        with:
+          fail-mode: true
+
+      # Install Nix and set up a local Nix store under /nix/store
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      # Note that we use Nix to build the Docker image and NOT the Docker CLI
+      - name: Build Docker image for horoscope service using Nix
+        run: nix build ".#docker"
+
+      # We need to log into the GitHub Container Registry in order to push images
+      - name: Docker login
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # No tag is provided in the Nix build configuration for our Docker image.
+      # When no tag is provided, Nix generates one for you based on the contents
+      # of the build inputs. This ensures that the image tag changes any time
+      # any aspect of the build changes (even one character in one file). In
+      # this CI step, the image is loaded, the image tag is inferred from the
+      # build output, and then that tag is saved to the CI environment under the
+      # IMAGE_TAG environment variable (used later during deployment).
+      - name: Load and push image to GHCR
+        run: |
+          export IMAGE_TAG=$(docker load < result | grep -Po 'Loaded image: \K.*')
+          echo "Pushing image ${IMAGE_TAG} to GHCR"
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+          docker push "${IMAGE_TAG}"
+
+      # Set the image name "globally" (across runners) so that the `deploy` job
+      # can use it.
+      - id: set-image
+        name: Set image name
+        run: |
+          echo "::set-output name=image::${{ env.IMAGE_TAG }}"
