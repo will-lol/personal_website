@@ -25,7 +25,7 @@
 	  config = { 
 	    Cmd = [ "${goBuild}/bin/personal-website" ]; 
 	    Labels = {
-	      "org.opencontainers.image.source" = "https://github.com/will-lol/personal_website"
+	      "org.opencontainers.image.source" = "https://github.com/will-lol/personal_website";
 	    };
 	  };
         };
